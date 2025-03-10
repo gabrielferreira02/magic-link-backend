@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Acesso Liberado</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+</head>
+<body class="h-full">
+    <div class="w-[90%] h-full mx-auto px-3 py-5">
+        <h1 class="font-bold text-xl">Olá, #{name}!</h1>
+        <p class="mt-2">Ficamos felizes com o seu login, acesse o link no botão abaixo para acessar o dashboard.</p>
+        <a href="http://localhost:4242/dashboard?token=#{token}" class="px-5 py-3 bg-green-500 rounded-lg shadow-md mt-5 inline-block font-bold">Acessar Dashboard</a>
+    </div>
+</body>
+</html>
