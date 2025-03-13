@@ -6,15 +6,9 @@ import com.gabrielferreira02.MagicLink.dto.ValidateResponseDTO;
 import com.gabrielferreira02.MagicLink.entity.UserEntity;
 import com.gabrielferreira02.MagicLink.repository.UserRepository;
 import com.gabrielferreira02.MagicLink.service.AuthService;
-import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,10 +18,7 @@ import java.util.UUID;
 public class AuthServiceImplementation implements AuthService {
 
     private final UserRepository userRepository;
-    private final JavaMailSender javaMailSender;
-
-    @Value("${spring.mail.username}")
-    private String username;
+    private final EmailServiceImpl emailService;
 
     @Override
     public void createUser(RegisterRequestDTO request) {
@@ -70,26 +61,6 @@ public class AuthServiceImplementation implements AuthService {
         user.get().setValidationToken(UUID.randomUUID().toString());
         user.get().setExpirationTime(new Date(System.currentTimeMillis() + (10*60*1000)));
         userRepository.save(user.get());
-        sendEmail(request.email(), user.get().getUsername(), user.get().getValidationToken());
-    }
-
-    private void sendEmail(String email, String username, String token) {
-        try {
-            MimeMessage message = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setFrom(this.username);
-            helper.setTo(email);
-            helper.setSubject("Acesso liberado para o Dashboard!");
-
-            ClassPathResource classPathResource = new ClassPathResource("email.html");
-            String template = new String(classPathResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-            template = template.replace("#{name}", username);
-            template = template.replace("#{token}", token);
-            helper.setText(template, true);
-
-            javaMailSender.send(message);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
-        }
+        emailService.sendEmail(request.email(), user.get().getUsername(), user.get().getValidationToken());
     }
 }
