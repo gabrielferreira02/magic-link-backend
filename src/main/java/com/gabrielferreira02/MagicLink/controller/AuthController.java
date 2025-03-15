@@ -17,32 +17,20 @@ public class AuthController {
 
     @PostMapping("register")
     public ResponseEntity<String> register(@RequestBody @Valid RegisterRequestDTO request) {
-        try {
-            authService.createUser(request);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+        authService.createUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("login")
     public ResponseEntity<String> login(@Valid @RequestBody LoginRequestDTO request) {
-        try {
-            authService.login(request);
-            return ResponseEntity.status(HttpStatus.OK).build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+        authService.login(request);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @ResponseStatus(HttpStatus.ACCEPTED)
     @PostMapping("validate")
     public ResponseEntity<Object> validateToken(@RequestBody ValidateRequestDTO request) {
-        try {
-            return ResponseEntity.status(HttpStatus.ACCEPTED).body(authService.validateToken(request.token()));
-        } catch(RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(authService.validateToken(request.token()));
     }
 
 }
