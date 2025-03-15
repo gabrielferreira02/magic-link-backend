@@ -6,6 +6,10 @@ import com.gabrielferreira02.MagicLink.dto.RegisterRequestDTO;
 import com.gabrielferreira02.MagicLink.dto.ValidateRequestDTO;
 import com.gabrielferreira02.MagicLink.dto.ValidateResponseDTO;
 import com.gabrielferreira02.MagicLink.entity.UserEntity;
+import com.gabrielferreira02.MagicLink.exception.EmailAlreadyExistsException;
+import com.gabrielferreira02.MagicLink.exception.InvalidTokenException;
+import com.gabrielferreira02.MagicLink.exception.TokenNotFoundException;
+import com.gabrielferreira02.MagicLink.exception.UserNotFoundException;
 import com.gabrielferreira02.MagicLink.service.impl.AuthServiceImplementation;
 import com.gabrielferreira02.MagicLink.service.impl.EmailServiceImpl;
 import org.junit.jupiter.api.DisplayName;
@@ -67,7 +71,7 @@ class AuthControllerTest {
         RegisterRequestDTO request = new RegisterRequestDTO("User", "user@email.com");
         String body = objectMapper.writeValueAsString(request);
 
-        doThrow(RuntimeException.class).when(authService).createUser(request);
+        doThrow(EmailAlreadyExistsException.class).when(authService).createUser(request);
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -131,7 +135,7 @@ class AuthControllerTest {
         LoginRequestDTO request = new LoginRequestDTO("");
         String body = objectMapper.writeValueAsString(request);
 
-        doThrow(RuntimeException.class).when(authService).login(request);
+        doThrow(UserNotFoundException.class).when(authService).login(request);
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -169,7 +173,7 @@ class AuthControllerTest {
         ValidateRequestDTO request = new ValidateRequestDTO("invalid token");
         String body = objectMapper.writeValueAsString(request);
 
-        doThrow(new RuntimeException("Token not found")).when(authService).validateToken(request.token());
+        doThrow(new TokenNotFoundException("Token not found")).when(authService).validateToken(request.token());
 
         mockMvc.perform(post("/api/auth/validate")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -190,7 +194,7 @@ class AuthControllerTest {
         user.setValidationToken(request.token());
         user.setExpirationTime(new Date(System.currentTimeMillis() + 5000));
 
-        doThrow(new RuntimeException("Token is not valid. Please, try login again")).when(authService).validateToken(request.token());
+        doThrow(new InvalidTokenException("Token is not valid. Please, try login again")).when(authService).validateToken(request.token());
 
         mockMvc.perform(post("/api/auth/validate")
                         .contentType(MediaType.APPLICATION_JSON)

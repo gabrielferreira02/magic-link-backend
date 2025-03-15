@@ -4,6 +4,10 @@ import com.gabrielferreira02.MagicLink.dto.LoginRequestDTO;
 import com.gabrielferreira02.MagicLink.dto.RegisterRequestDTO;
 import com.gabrielferreira02.MagicLink.dto.ValidateResponseDTO;
 import com.gabrielferreira02.MagicLink.entity.UserEntity;
+import com.gabrielferreira02.MagicLink.exception.EmailAlreadyExistsException;
+import com.gabrielferreira02.MagicLink.exception.InvalidTokenException;
+import com.gabrielferreira02.MagicLink.exception.TokenNotFoundException;
+import com.gabrielferreira02.MagicLink.exception.UserNotFoundException;
 import com.gabrielferreira02.MagicLink.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -52,7 +56,7 @@ class AuthServiceImplementationTest {
 
             when(userRepository.existsByEmail(request.email())).thenReturn(true);
 
-            assertThrows(RuntimeException.class, () -> {
+            assertThrows(EmailAlreadyExistsException.class, () -> {
                 authService.createUser(request);
             });
         }
@@ -95,7 +99,7 @@ class AuthServiceImplementationTest {
 
             when(userRepository.findByValidationToken(token)).thenReturn(Optional.of(user));
 
-            assertThrows(RuntimeException.class, () -> {
+            assertThrows(InvalidTokenException.class, () -> {
                 authService.validateToken(token);
             });
         }
@@ -107,7 +111,7 @@ class AuthServiceImplementationTest {
 
             when(userRepository.findByValidationToken(token)).thenReturn(Optional.empty());
 
-            assertThrows(RuntimeException.class, () -> {
+            assertThrows(TokenNotFoundException.class, () -> {
                 authService.validateToken(token);
             });
 
@@ -146,7 +150,7 @@ class AuthServiceImplementationTest {
 
             when(userRepository.findByEmail(request.email())).thenReturn(Optional.empty());
 
-            assertThrows(RuntimeException.class, () -> {
+            assertThrows(UserNotFoundException.class, () -> {
                 authService.login(request);
             });
         }
