@@ -2,8 +2,10 @@ package com.gabrielferreira02.MagicLink.controller;
 
 import com.gabrielferreira02.MagicLink.dto.*;
 import com.gabrielferreira02.MagicLink.service.impl.AuthServiceImplementation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,22 +15,34 @@ public class AuthController {
 
     private final AuthServiceImplementation authService;
 
-    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("register")
-    public void register(@RequestBody RegisterRequestDTO request) {
-        authService.createUser(request);
+    public ResponseEntity<String> register(@RequestBody @Valid RegisterRequestDTO request) {
+        try {
+            authService.createUser(request);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
-    @ResponseStatus(HttpStatus.OK)
     @PostMapping("login")
-    public void login(@RequestBody LoginRequestDTO request) {
-        authService.login(request);
+    public ResponseEntity<String> login(@Valid @RequestBody LoginRequestDTO request) {
+        try {
+            authService.login(request);
+            return ResponseEntity.status(HttpStatus.OK).build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @ResponseStatus(HttpStatus.ACCEPTED)
     @PostMapping("validate")
-    public ValidateResponseDTO validateToken(@RequestBody ValidateRequestDTO request) {
-        return authService.validateToken(request.token());
+    public ResponseEntity<Object> validateToken(@RequestBody ValidateRequestDTO request) {
+        try {
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(authService.validateToken(request.token()));
+        } catch(RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
 }

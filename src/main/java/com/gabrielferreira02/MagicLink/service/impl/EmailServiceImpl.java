@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 
-@Service
 @RequiredArgsConstructor
+@Service
 public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender javaMailSender;
