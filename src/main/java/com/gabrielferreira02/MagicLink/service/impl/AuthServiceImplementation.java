@@ -4,6 +4,10 @@ import com.gabrielferreira02.MagicLink.dto.LoginRequestDTO;
 import com.gabrielferreira02.MagicLink.dto.RegisterRequestDTO;
 import com.gabrielferreira02.MagicLink.dto.ValidateResponseDTO;
 import com.gabrielferreira02.MagicLink.entity.UserEntity;
+import com.gabrielferreira02.MagicLink.exception.EmailAlreadyExistsException;
+import com.gabrielferreira02.MagicLink.exception.InvalidTokenException;
+import com.gabrielferreira02.MagicLink.exception.TokenNotFoundException;
+import com.gabrielferreira02.MagicLink.exception.UserNotFoundException;
 import com.gabrielferreira02.MagicLink.repository.UserRepository;
 import com.gabrielferreira02.MagicLink.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +27,7 @@ public class AuthServiceImplementation implements AuthService {
     @Override
     public void createUser(RegisterRequestDTO request) {
         if(userRepository.existsByEmail(request.email())) {
-            throw new RuntimeException("Email address already exists");
+            throw new EmailAlreadyExistsException("Email address already exists");
         }
 
         UserEntity newUser = new UserEntity();
@@ -38,14 +42,14 @@ public class AuthServiceImplementation implements AuthService {
         Optional<UserEntity> user = userRepository.findByValidationToken(token);
 
         if(user.isEmpty()) {
-            throw new RuntimeException("Token not found");
+            throw new TokenNotFoundException("Token not found");
         }
 
         Date tokenExpiresDate = user.get().getExpirationTime();
         Date now = new Date();
 
         if(tokenExpiresDate.before(now)) {
-            throw new RuntimeException("Token is not valid. Please, try login again");
+            throw new InvalidTokenException("Token is not valid. Please, try login again");
         }
 
         return new ValidateResponseDTO(user.get().getUsername(), true);
@@ -55,7 +59,7 @@ public class AuthServiceImplementation implements AuthService {
         Optional<UserEntity> user = userRepository.findByEmail(request.email());
 
         if(user.isEmpty()) {
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException("User not found");
         }
 
         user.get().setValidationToken(UUID.randomUUID().toString());
