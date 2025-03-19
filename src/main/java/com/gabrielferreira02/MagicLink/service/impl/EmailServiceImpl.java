@@ -3,6 +3,7 @@ package com.gabrielferreira02.MagicLink.service.impl;
 import com.gabrielferreira02.MagicLink.service.EmailService;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class EmailServiceImpl implements EmailService {
@@ -35,7 +37,9 @@ public class EmailServiceImpl implements EmailService {
             helper.setText(template, true);
 
             javaMailSender.send(message);
+            log.info("Email sent successfully to: {}", email);
         } catch (Exception e) {
+            log.warn("Fail to sending email to: {}", email);
             throw new RuntimeException(e.getMessage());
         }
     }
