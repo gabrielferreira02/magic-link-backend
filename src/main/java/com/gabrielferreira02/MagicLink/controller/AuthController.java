@@ -9,11 +9,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Authentication", description = "Controller to manage register and login with a magic link")
@@ -47,7 +49,9 @@ public class AuthController {
     )
     @PostMapping("register")
     public ResponseEntity<String> register(@RequestBody @Valid RegisterRequestDTO request) {
+        log.info("Received request to register user with email: {}", request.email());
         authService.createUser(request);
+        log.info("User registered successfully with email: {}", request.email());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -76,7 +80,9 @@ public class AuthController {
     )
     @PostMapping("login")
     public ResponseEntity<String> login(@Valid @RequestBody LoginRequestDTO request) {
+        log.info("Received login request for user with email: {}", request.email());
         authService.login(request);
+        log.info("Magic link sent successfully to email: {}", request.email());
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -109,7 +115,10 @@ public class AuthController {
     )
     @PostMapping("validate")
     public ResponseEntity<Object> validateToken(@RequestBody ValidateRequestDTO request) {
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(authService.validateToken(request.token()));
+        log.info("Received request to validate token: {}", request.token());
+        ValidateResponseDTO response = authService.validateToken(request.token());
+        log.info("Token validated successfully: {}", request.token());
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
     }
 
 }
